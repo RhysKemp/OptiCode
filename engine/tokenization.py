@@ -1,6 +1,9 @@
 from io import BytesIO
 import tokenize
 
+# Class is not language agnostic and as such if we were to implement this into other languages we would need to create an interface and other concrete implementations of the class
+# Remains to be seen if the class is needed at all.
+
 def tokenize_code(source_code):
     """
     Tokenizes the given source code into a list of tokens.
