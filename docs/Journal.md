@@ -126,5 +126,14 @@
 
 ### Day 3
 
+- Create tokenization class and test cases
+
+### Day 4
+
+- 1
+- 2
+
+### Day 4
+
 - 1
 - 2
