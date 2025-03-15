@@ -27,6 +27,7 @@
 - Datasets from GitHub (require before and after optimisation examples)
 - Can generate synthetic data, to be posted in a GitHub repo
 - **Optimisation Examples Repo:** [TODO LINK](#)
+- **Optimisation Model Training dataset** [LINK](https://github.com/CodeGeneration2/Efficient-Code-Generation-with-GEC)
 
 ### Other Examples
 
@@ -96,7 +97,7 @@
 ## Roadmap
 
 - Phase 1:
-  - [ ] Step 1: Set up code parsing (AST and tokenization).
+  - [x] Step 1: Set up code parsing (AST and tokenization).
   - [ ] Step 2: Implement basic rule-based optimisations.
   - [ ] Step 3: Implement benchmarking tool.
 - Phase 2:
@@ -126,12 +127,20 @@
 
 ### Day 3
 
-- Create tokenization class and test cases
+- Create tokenization class and unit test
 
 ### Day 4
 
-- 1
-- 2
+- Created [ast_parser.py](../engine/ast_parser.py) - A simple ast parser and visualiser class
+- Found a [DATASET](https://github.com/CodeGeneration2/Efficient-Code-Generation-with-GEC) for inefficient-efficient code pairs
+- Set up [ci.yml](../.github/workflows/ci.yml) workflow for unit testing
+- TODO test_ast_parser.py - ast parser unit tests
+
+### Day 5
+
+- Create [test_ast_parser.py](../tests/test_engine/test_ast_parser.py) - unit tests for [ast_parser.py](../engine/ast_parser.py)
+-
+-
 
 ### Day 4
 

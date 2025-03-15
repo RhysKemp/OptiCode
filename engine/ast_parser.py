@@ -11,7 +11,7 @@ def parse_ast(source_code):
     Returns:
     
         ast.AST: The parsed AST if the source code is valid.
-        
+            
         None: If there is a syntax error in the source code.
 
     Raises:
@@ -37,6 +37,7 @@ def visualise_ast(tree):
     astpretty.pprint(tree)
     
 if __name__ == "__main__":
+    # Display of function
     sample_code = "x = 10\nprint(x)"
     tree = parse_ast(sample_code)
     if tree:
