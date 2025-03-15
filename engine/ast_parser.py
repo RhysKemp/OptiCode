@@ -34,6 +34,11 @@ class ASTParser:
 
     get_node_source(node: ast.AST) -> str:
         Converts an AST node back to the corresponding source code.
+        
+    remove_node(self, node) -> None:
+        Removes a specific node from the AST.
+        
+    TODO: add docs for other methods
     """
     def __init__(self, source_code: str):
         self.source_code = source_code
@@ -69,7 +74,7 @@ class ASTParser:
         
     def walk_and_apply(self, optimisation_func):
         """
-        Walks through the AST and applies the given optimisation to the node
+        Walks through the AST and applies the given optimisation to the nodes
         
         Args:
             optimisation_func (function):
@@ -101,6 +106,83 @@ class ASTParser:
                 The source code corresponding to the entire AST.
         """
         return ast.unparse(self.tree)
+    
+    def remove_node(self, node):
+        """
+        Removes the specified node from the AST (Abstract Syntax Tree).
+        
+        Args:
+            node (ast.AST): The node to be removed from the AST.
+            
+        Returns:
+            None
+        """
+        parent = self._find_parent(node)
+        if parent:
+            for field, value in ast.iter_fields(parent):
+                if isinstance(value, list):
+                    if node in value:
+                        value.remove(node)
+                        return
+                elif value is node:
+                    setattr(parent, field, None)
+                    return
+
+            
+    def find_assignments(self):
+        """
+        Finds all direct variable assignments (e.g., `=`) in the AST.
+        Note: This method does not find augmented assignments (e.g., `+=`).
+
+        Returns:
+            dict: A dictionary with variable names as keys and assignment nodes as values.
+        """
+        assignments = {}
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name):
+                        assignments[target.id] = node
+        return assignments
+    
+    def find_used_variables(self):
+        """
+        Finds all variables that are used in the AST.
+
+        Returns:
+            set: A set of variable names that are used in the AST.
+        """
+        used_vars = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                used_vars.add(node.id)
+        return used_vars
+    
+    def fix_locations(self):
+        """
+        Fixes the locations of the nodes in the abstract syntax tree (AST).
+
+        Returns:
+            None
+        """
+        self.tree = ast.fix_missing_locations(self.tree)
+        
+    def _find_parent(self, node):
+        """
+        Find the parent node of a given AST node.
+
+        Args:
+            node (ast.AST): The AST node for which to find the parent.
+
+        Returns:
+            ast.AST: The parent node of the given AST node, or None if no parent is found.
+        """
+        for parent in ast.walk(self.tree):
+            for child in ast.iter_child_nodes(parent):
+                if child is node:
+                    return parent
+    
+
     
 if __name__ == "__main__":
     # Display of `visualise_ast` & constructor methods.
