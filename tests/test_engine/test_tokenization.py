@@ -59,7 +59,7 @@ class TestTokenization(unittest.TestCase):
                     self.assertEqual(actual_token[1], expected_token[1], 
                                      f"Token value mismatch at index {i} in {case['name']}. Expected: '{expected_token[1]}', Got: '{actual_token[1]}'")
                 
-                if len(token_values) != len(expected_values): # catchall
+                if len(token_values) != len(expected_values): # catch-all
                     print(f"Expected tokens: {expected_values}")
                     print(f"Actual tokens:   {token_values}")
                 
