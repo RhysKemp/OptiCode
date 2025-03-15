@@ -9,20 +9,13 @@ def parse_ast(source_code):
         source_code (str): The source code to be parsed.
 
     Returns:
-    
         ast.AST: The parsed AST if the source code is valid.
-            
-        None: If there is a syntax error in the source code.
 
     Raises:
         SyntaxError: If the source code contains a syntax error.
     """
-    try:
-        tree = ast.parse(source_code)
-        return tree
-    except SyntaxError as e:
-        print(f"SyntaxError: {e}")
-        return None
+    tree = ast.parse(source_code)
+    return tree
     
 def visualise_ast(tree):
     """
