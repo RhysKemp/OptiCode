@@ -17,7 +17,8 @@ class TestASTParser(unittest.TestCase):
         """
         Set up common variables and resources needed for tests.
         """
-        self.valid_code = "x = 10\nprint(x)"
+        self.valid_code = "x = 10\ny = 20\nz = 30\nprint(x)\nprint(z)"
+        self.valid_code_two = "x = 10\ny = 20\nz = 30\nprint(x)\nprint(z)"
         self.invalid_code = "x = 10\nprint(x"  # missing parenthesis
         self.parser = ASTParser(self.valid_code)
 
@@ -82,7 +83,7 @@ class TestASTParser(unittest.TestCase):
         """
         parser = self.parser
         tree = parser.tree
-        node = tree.body[0]  # Get the first node (x = 10)
+        node = tree.body[0]  # x = 10
         
         source = parser.get_node_source(node)
         
@@ -101,6 +102,62 @@ class TestASTParser(unittest.TestCase):
         regenerated_code = self.parser.get_source()        
         self.assertEqual(regenerated_code.strip(), self.valid_code.strip())
         
+    def test_remove_node(self):
+        """
+        Test the `remove_nod`e method of the parser.
+        
+        This test verifies that the `remove_node` method correctly removes a specified node from the AST (Abstract Syntax Tree).
+        
+        Assertions:
+            - The regenerated code is the same as the valid code
+            - y = 20 is removed from the original code.
+        """
+        # Arrange
+        parser = self.parser
+        tree = parser.tree
+        node = tree.body[1] # y = 20
+        # Act
+        parser.remove_node(node)
+        modified_tree = parser.tree
+        modified_code = ast.unparse(modified_tree)
+        # Assert
+        expected_code = "x = 10\nz = 30\nprint(x)\nprint(z)"
+        self.assertEqual(expected_code, modified_code)
+        
+    def test_find_assignments(self):
+            """
+            Test the `find_assignments` method of the parser.
+
+            This test verifies that the `find_assignments` method correctly identifies
+            all direct variable assignments in the AST.
+
+            Assertions:
+                - The assignments dictionary should contain the correct variable names as keys.
+                - The corresponding values should be instances of ast.Assign.
+            """
+            parser = self.parser
+            assignments = parser.find_assignments()
+
+            expected_assignments = {"x", "y", "z"}
+            self.assertEqual(set(assignments.keys()), expected_assignments)
+            for node in assignments.values():
+                self.assertIsInstance(node, ast.Assign)
+    
+    def test_find_used_variables(self):
+            """
+            Test the `find_used_variables` method of the parser.
+
+            This test verifies that the `find_used_variables` method correctly identifies
+            all variables that are used in the AST.
+
+            Assertions:
+                - The set of used variables should contain the correct variable names.
+            """
+            parser = self.parser
+            used_vars = parser.find_used_variables()
+
+            expected_used_vars = {"x", "z"}
+            self.assertEqual(used_vars, expected_used_vars)
 
     # def test_visualise_ast(self):
     #     # Optional manual test

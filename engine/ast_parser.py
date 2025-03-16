@@ -1,4 +1,5 @@
 import ast
+import builtins
 import astpretty
 
 class ASTParser:
@@ -153,9 +154,11 @@ class ASTParser:
             set: A set of variable names that are used in the AST.
         """
         used_vars = set()
+        builtins_set = set(dir(builtins))
         for node in ast.walk(self.tree):
             if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-                used_vars.add(node.id)
+                if node.id not in builtins_set:
+                    used_vars.add(node.id)
         return used_vars
     
     def fix_locations(self):

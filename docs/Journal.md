@@ -139,10 +139,16 @@
 ### Day 5
 
 - Create [test_ast_parser.py](../tests/test_engine/test_ast_parser.py) - unit tests for [ast_parser.py](../engine/ast_parser.py)
--
--
+- Added various methods to [ast_parser.py](../engine/ast_parser.py) for manipulating ASTs
+- Started work on rule-based optimisations, currently only un-used variables. Framework should allow for other rules to be implemented fairly easily.
+- Unit tests need to be expanded for both referenced classes.
 
-### Day 4
+### Day 6
+
+- Add more unit testing for [ast_parser.py](../engine/ast_parser.py)
+- 2
+
+### Day 7
 
 - 1
 - 2

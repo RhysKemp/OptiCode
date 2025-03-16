@@ -54,6 +54,9 @@ class RuleBasedOptimisations():
         
         self.ast_parser.fix_locations()
         
+    def loop_unrolling(self):
+        pass
+        
         
 if __name__ == "__main__":
     
