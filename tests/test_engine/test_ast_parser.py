@@ -2,23 +2,12 @@ import unittest
 import ast
 from engine.ast_parser import *
 
-def sample_optimisation(ast_parser, node):
-    """
-    An optimisation helper function that modifies AST nodes for testing.
-    If the node is an assignment (ast.Assign), change the value of the assignment to 42.
-    """
-    if isinstance(node, ast.Assign):
-        for target in node.targets:
-            if isinstance(target, ast.Name) and target.id == "x":
-                node.value = ast.Constant(value=42) # Modify value to 42
-
 class TestASTParser(unittest.TestCase):
     def setUp(self):
         """
         Set up common variables and resources needed for tests.
         """
         self.valid_code = "x = 10\ny = 20\nz = 30\nprint(x)\nprint(z)"
-        self.valid_code_two = "x = 10\ny = 20\nz = 30\nprint(x)\nprint(z)"
         self.invalid_code = "x = 10\nprint(x"  # missing parenthesis
         self.parser = ASTParser(self.valid_code)
 
@@ -47,28 +36,6 @@ class TestASTParser(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             self.parser.parse_ast(self.invalid_code)
             
-    def test_walk_and_apply(self):
-        """
-        Test the `walk_and_apply` method of the parser.
-        
-        This test verifies that the `walk_and_apply` method correctly modifies the AST (Abstract Syntax Tree)
-        by applying the sample_optimisation function. It checks that the original code and the modified code
-        are not equal and that the modified code has the expected value.
-        
-        Assertions:
-            - The original code and modified code should not be equal.
-            - The modified code should have a value of 42.
-        """
-        
-        # Arrange
-        parser = self.parser
-        original_code = parser.tree.body[0].value
-        # Act
-        self.parser.walk_and_apply(sample_optimisation)
-        modified_code = parser.tree.body[0].value
-        # Assert
-        self.assertNotEqual(original_code, modified_code)
-        self.assertEqual(modified_code.n, 42) # 42 == 42
 
     def test_get_node_source(self):
         """

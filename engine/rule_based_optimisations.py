@@ -1,4 +1,4 @@
-import ast_parser
+from engine.ast_parser import ASTParser
 
 """
 This class contains the manual, rule-based optimisation implementations used in the OptiCode project.
@@ -50,12 +50,34 @@ class RuleBasedOptimisations():
         for var, node in assignments.items():
             if var not in used_vars:
                 self.ast_parser.remove_node(node)
-                print(f"Removed node: {node.value.n}")
         
         self.ast_parser.fix_locations()
         
-    def loop_unrolling(self):
-        pass
+    def constant_folding(self):
+        """
+        Performs constant folding on the abstract syntax tree (AST).
+        
+        This method identifies constant expressions and replaces them with their computed values.
+        
+        Returns:
+            None
+        """
+        constant_expressions = self.ast_parser.find_constant_expressions()
+        
+        for node, new_value in constant_expressions:
+            new_constant_node = self.ast_parser.create_node('Constant', value = new_value)
+            self.ast_parser.replace_node(node, new_constant_node)
+        
+        self.ast_parser.fix_locations()
+        
+    def dead_code_elimination(self):
+        unreachable_nodes = self.ast_parser.find_unreachable_code()
+        for node in unreachable_nodes:
+                self.ast_parser.remove_node(node)
+        
+        
+    
+        
         
         
 if __name__ == "__main__":

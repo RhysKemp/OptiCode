@@ -146,9 +146,9 @@
 ### Day 6
 
 - Add more unit testing for [ast_parser.py](../engine/ast_parser.py)
-- 2
+- Begin work on [rule_based_optimisations.py](../engine/rule_based_optimisations.py)
 
 ### Day 7
 
-- 1
-- 2
+- Continue work on [ast_parser.py](../engine/ast_parser.py) and [rule_based_optimisations.py](../engine/rule_based_optimisations.py)
+- Add some work on [rule_based_optimisations.py](../benchmarking/benchmark.py)
