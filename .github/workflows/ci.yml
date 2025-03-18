@@ -33,3 +33,8 @@ jobs:
         run: |
           source .venv/bin/activate
           python -m unittest discover -s tests/test_engine -p "test_*.py"
+
+      - name: Run benchmarking tests
+        run: |
+          source .venv/bin/activate
+          python -m unittest discover -s tests/test_benchmarking -p "test_*.py"

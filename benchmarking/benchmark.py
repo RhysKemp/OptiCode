@@ -1,78 +1,112 @@
 import time
-import random
+from memory_profiler import memory_usage
+
 
 def measure_execution_time(script_code):
+    """
+    Measures the execution time of a given script.
+    Args:
+        script_code (str): The code of the script to be executed as a string.
+    Returns:
+        float: The execution time of the script in seconds.
+    """
     start_time = time.perf_counter()
     exec(script_code)
     end_time = time.perf_counter()
-    
+
     execution_time = end_time - start_time
     return execution_time
 
-def run_full_benchmark(original_script_code, optimised_script_code):
-    # Measure execution time for original script
-    original_time = measure_execution_time(original_script_code)
-    print(f"Original Script Execution Time: {original_time:.8f} seconds")
-    
-    # Measure execution time for optimized script
-    optimised_time = measure_execution_time(optimised_script_code)
-    print(f"Optimised Script Execution Time: {optimised_time:.8f} seconds")
 
-# Example test case in code as a string
-original_script_code = """
-def slow_task(size=1000):
-    total = 0
-    for i in range(size):
-        for j in range(size):
-            total += (i * j) ** 0.5  # Some basic but slow computation
-    return total
+def measure_memory_usage(script_code):
+    """
+    Measures the memory usage of a given script.
 
-def generate_data(size=1000):
-    return [random.randint(1, 100) for _ in range(size)]
+    Args:
+        script_code (str): The code of the script to be executed and measured.
 
-def process_data(data):
-    # Inefficient sorting: sorting before summing every time
-    data.sort()
-    return sum(data)
+    Returns:
+        list: A list of memory usage measurements in MB.
+    """
+    mem_usage = memory_usage((exec, (script_code,)))
+    return mem_usage
 
-def main():
-    # Simulate data generation and processing
-    data = generate_data(size=10000)  # Generate a dataset of 10,000 items
-    processed_data = process_data(data)
 
-    # Run a slow computational task
-    result = slow_task(size=100)
+def run_benchmark(script_code, bool=True):
+    """
+    Runs a benchmark on the provided script code to measure its execution time and memory usage.
 
-    return processed_data, result
+    Parameters:
+        script_code (str): The code to be benchmarked.
+        bool (bool): If True, prints the benchmark results. Default is True.
+
+    Returns:
+        tuple: A tuple containing the execution time (float) in seconds and memory usage (list of floats) in MiB.
+    """
+    exec_time = measure_execution_time(script_code)
+    mem_usage = measure_memory_usage(script_code)
+
+    if bool:
+        print("Benchmark Results:")
+        print("Execution Time: {:.8f} seconds".format(exec_time))
+        print("Memory Usage: {:.4f} MiB".format(max(mem_usage)))
+
+    return exec_time, mem_usage
+
+
+def run_comparison_benchmark(original_script_code, optimised_script_code, bool=True):
+    """
+    Runs a benchmark comparison between the original and optimised script code.
+
+    This function measures and compares the execution time and memory usage of the
+    original and optimised script code. Optionally, it prints the benchmark results.
+
+    Parameters:
+        original_script_code (str): The code of the original script to be benchmarked.
+        optimised_script_code (str): The code of the optimised script to be benchmarked.
+        bool (bool): If True, prints the benchmark results. Default is True.
+
+    Returns:
+        tuple: A tuple containing:
+            - original_exec_time (float): Execution time of the original script in seconds.
+            - original_mem_usage (list): Memory usage of the original script in MiB.
+            - optimised_exec_time (float): Execution time of the optimised script in seconds.
+            - optimised_mem_usage (list): Memory usage of the optimised script in MiB.
+    """
+    # Measure execution time
+    original_exec_time = measure_execution_time(original_script_code)
+    optimised_exec_time = measure_execution_time(optimised_script_code)
+
+    # Measure memory usage
+    original_mem_usage = measure_memory_usage(original_script_code)
+    optimised_mem_usage = measure_memory_usage(optimised_script_code)
+
+    if bool:
+        print("Benchmark Results:")
+        print("Execution Time (Original): {:.8f} seconds".format(original_exec_time))
+        print("Execution Time (Optimised): {:.8f} seconds".format(optimised_exec_time))
+        print("Memory Usage (Original): {:.2f} MiB".format(max(original_mem_usage)))
+        print("Memory Usage (Optimised): {:.2f} MiB".format(max(optimised_mem_usage)))
+
+    return (
+        original_exec_time,
+        original_mem_usage,
+        optimised_exec_time,
+        optimised_mem_usage,
+    )
+
+
+if __name__ == "__main__":
+    original_script_code = """
+x = 10
+y = 20
+print(x + y)
+"""
+    optimised_script_code = """
+x = 10
+y = 20
+print(30)
 """
 
-optimised_script_code = """
-def optimized_slow_task(size=1000):
-
-    total = 0
-    # Use a more efficient loop and pre-compute the power of values
-    for i in range(size):
-        for j in range(size):
-            total += (i * j) ** 0.5  # Same basic computation but simplified
-    return total
-
-def generate_data(size=1000):
-    return [random.randint(1, 100) for _ in range(size)]
-
-def optimized_process_data(data):
-    # Directly sum the data, skipping unnecessary sorting
-    return sum(data)
-
-def main():
-    # Simulate data generation and processing
-    data = generate_data(size=10000)  # Generate a dataset of 10,000 items
-    processed_data = optimized_process_data(data)
-
-    # Run the optimized computational task
-    result = optimized_slow_task(size=100)
-
-    return processed_data, result
-"""
-
-
-run_full_benchmark(original_script_code, optimised_script_code)
+    run_benchmark(optimised_script_code)
+    run_comparison_benchmark(original_script_code, optimised_script_code)
