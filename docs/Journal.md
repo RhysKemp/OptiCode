@@ -153,7 +153,8 @@
 - Continue work on [ast_parser.py](../engine/ast_parser.py) and [rule_based_optimisations.py](../engine/rule_based_optimisations.py)
 - Add some work on [benchmark.py](../benchmarking/benchmark.py)
 
-### Day 7
+### Day 8
 
--
--
+- Finished implmenting [benchmark.py](../benchmarking/benchmark.py) and created [test_benchmark.py](../tests/test_benchmarking/test_benchmark.py)
+- Begin work on AI integration.
+- Start creating a [dataset](LINK TODO) class to load in the open source GEC dataset (MIT open source license)

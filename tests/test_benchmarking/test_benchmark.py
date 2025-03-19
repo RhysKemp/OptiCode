@@ -106,7 +106,7 @@ result = test_function()
 
     def test_simple_addition(self):
         script_code = "x = 10\ny = 20\nz = x + y"
-        exec_time, mem_usage = run_benchmark(script_code, bool=False)
+        exec_time, mem_usage = run_benchmark(script_code, display=False)
         self.assertIsInstance(exec_time, float)
         self.assertGreaterEqual(exec_time, 0)
         self.assertIsInstance(mem_usage, list)
@@ -115,7 +115,7 @@ result = test_function()
 
     def test_empty_script(self):
         script_code = ""
-        exec_time, mem_usage = run_benchmark(script_code, bool=False)
+        exec_time, mem_usage = run_benchmark(script_code, display=False)
         self.assertIsInstance(exec_time, float)
         self.assertGreaterEqual(exec_time, 0)
         self.assertIsInstance(mem_usage, list)
@@ -127,7 +127,7 @@ result = test_function()
 for i in range(1000000):
     pass
 """
-        exec_time, mem_usage = run_benchmark(script_code, bool=False)
+        exec_time, mem_usage = run_benchmark(script_code, display=False)
         self.assertIsInstance(exec_time, float)
         self.assertGreaterEqual(exec_time, 0)
         self.assertIsInstance(mem_usage, list)
@@ -141,7 +141,7 @@ def test_function():
 
 result = test_function()
 """
-        exec_time, mem_usage = run_benchmark(script_code, bool=False)
+        exec_time, mem_usage = run_benchmark(script_code, display=False)
         self.assertIsInstance(exec_time, float)
         self.assertGreaterEqual(exec_time, 0)
         self.assertIsInstance(mem_usage, list)
@@ -157,7 +157,7 @@ result = test_function()
             optimised_exec_time,
             optimised_mem_usage,
         ) = run_comparison_benchmark(
-            original_script_code, optimised_script_code, bool=False
+            original_script_code, optimised_script_code, display=False
         )
         self.assertIsInstance(original_exec_time, float)
         self.assertGreaterEqual(original_exec_time, 0)

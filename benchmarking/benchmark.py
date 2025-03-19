@@ -1,4 +1,5 @@
 import time
+from tqdm import tqdm
 from memory_profiler import memory_usage
 
 
@@ -32,7 +33,7 @@ def measure_memory_usage(script_code):
     return mem_usage
 
 
-def run_benchmark(script_code, bool=True):
+def run_benchmark(script_code, display=True):
     """
     Runs a benchmark on the provided script code to measure its execution time and memory usage.
 
@@ -43,10 +44,13 @@ def run_benchmark(script_code, bool=True):
     Returns:
         tuple: A tuple containing the execution time (float) in seconds and memory usage (list of floats) in MiB.
     """
-    exec_time = measure_execution_time(script_code)
-    mem_usage = measure_memory_usage(script_code)
+    with tqdm(total=2, desc="Benchmarking", unit="step") as pbar:
+        exec_time = measure_execution_time(script_code)
+        pbar.update(1)
+        mem_usage = measure_memory_usage(script_code)
+        pbar.update(1)
 
-    if bool:
+    if display:
         print("Benchmark Results:")
         print("Execution Time: {:.8f} seconds".format(exec_time))
         print("Memory Usage: {:.4f} MiB".format(max(mem_usage)))
@@ -54,7 +58,7 @@ def run_benchmark(script_code, bool=True):
     return exec_time, mem_usage
 
 
-def run_comparison_benchmark(original_script_code, optimised_script_code, bool=True):
+def run_comparison_benchmark(original_script_code, optimised_script_code, display=True):
     """
     Runs a benchmark comparison between the original and optimised script code.
 
@@ -73,15 +77,20 @@ def run_comparison_benchmark(original_script_code, optimised_script_code, bool=T
             - optimised_exec_time (float): Execution time of the optimised script in seconds.
             - optimised_mem_usage (list): Memory usage of the optimised script in MiB.
     """
-    # Measure execution time
-    original_exec_time = measure_execution_time(original_script_code)
-    optimised_exec_time = measure_execution_time(optimised_script_code)
+    with tqdm(total=4, desc="Comparison Benchmarking", unit="step") as pbar:
+        # Measure execution time
+        original_exec_time = measure_execution_time(original_script_code)
+        pbar.update(1)
+        optimised_exec_time = measure_execution_time(optimised_script_code)
+        pbar.update(1)
 
-    # Measure memory usage
-    original_mem_usage = measure_memory_usage(original_script_code)
-    optimised_mem_usage = measure_memory_usage(optimised_script_code)
+        # Measure memory usage
+        original_mem_usage = measure_memory_usage(original_script_code)
+        pbar.update(1)
+        optimised_mem_usage = measure_memory_usage(optimised_script_code)
+        pbar.update(1)
 
-    if bool:
+    if display:
         print("Benchmark Results:")
         print("Execution Time (Original): {:.8f} seconds".format(original_exec_time))
         print("Execution Time (Optimised): {:.8f} seconds".format(optimised_exec_time))
