@@ -6,10 +6,8 @@ from engine.ast_parser import ASTParser
 from torch.utils.data import Dataset
 from utils.file_loader import *
 
-# TODO: figure out how to clean the data properly - possibly handling it better in file_loader.py
 
-
-class CustomDataset(Dataset):
+class LinearDataset(Dataset):
     """
     A custom dataset class for loading and processing code datasets.
     Attributes:
@@ -38,20 +36,19 @@ class CustomDataset(Dataset):
                 tuple: A tuple containing the inefficient and accepted ASTs.
     """
 
-    def __init__(self, dataset_dir: str):
+    def __init__(self, dataset_dir: str, tokeniser, max_length: int = 512):
         """
         Initialises the Dataset object.
 
         Args:
             dataset_dir (str): The directory where the dataset is stored.
-
-        Attributes:
-            dataset_dir (str): The directory where the dataset is stored.
-            parser (ASTParser): An instance of the ASTParser class.
-            data (Any): The loaded dataset.
-            processed_data (Any): The processed dataset.
+            tokeniser: The tokenizer to be used for processing the dataset.
+            max_length (int, optional): The maximum length of the tokenized sequences. Defaults to 512.
         """
+
         self.dataset_dir = dataset_dir
+        self.tokeniser = tokeniser
+        self.max_length = max_length
         self.parser = ASTParser()
         self.data = self.load_dataset()
         self.processed_data = self.process_dataset()
@@ -102,7 +99,6 @@ class CustomDataset(Dataset):
 
                 # Ensure valid data
                 if input_output_data and accepted_data and acc_tle_solutions:
-
                     data[root] = {
                         "input_output": input_output_data,
                         "accepted": accepted_data,
@@ -110,7 +106,6 @@ class CustomDataset(Dataset):
                     }
                 else:
                     print(f"Skipping incomplete dataset at {root}")
-
         return data
 
     def process_dataset(self):
@@ -128,7 +123,6 @@ class CustomDataset(Dataset):
         """
         processed = []
         for dir in tqdm(self.data.values(), desc="Processing directories", unit="dir"):
-            input_output = dir["input_output"]
             efficient_code = dir["accepted"]
             inefficient_codes = dir["acc_tle_solutions"]
 
@@ -136,6 +130,7 @@ class CustomDataset(Dataset):
                 try:
                     self.parser.parse_ast(inefficient_code)
                     inefficient_ast = self.parser.tree
+
                     self.parser.parse_ast(efficient_code)
                     efficient_ast = self.parser.tree
 
@@ -144,11 +139,31 @@ class CustomDataset(Dataset):
                     print(f"SyntaxError: {e}")
                     print(f"Source code: {repr(inefficient_code)}")
                     continue
-
         return processed
 
     def __len__(self):
         return len(self.processed_data)
 
     def __getitem__(self, index):
-        return self.processed_data[index]
+        inefficient_ast, efficient_ast = self.processed_data[index]
+        parser = self.parser
+
+        # Linearise the ASTs
+        parser.tree = inefficient_ast
+        inefficient_seq = parser.linearise_ast()
+
+        parser.tree = efficient_ast
+        efficient_seq = parser.linearise_ast()
+
+        # Tokenise
+        input_encodings = self.tokeniser(
+            inefficient_seq, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
+        target_encodings = self.tokeniser(
+            efficient_seq, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
+
+        # Remove batch dimension and create a dictionary
+        return {
+            "input_ids": input_encodings["input_ids"].squeeze(),
+            "attention_mask": input_encodings["attention_mask"].squeeze(),
+            "labels": target_encodings["input_ids"].squeeze(),
+        }

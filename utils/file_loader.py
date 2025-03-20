@@ -94,7 +94,8 @@ def load_json_files_from_directory(directory_path: str):
             if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
                 data[file_name] = load_json_file(file_path)
             else:
-                print(f"Warning: {file_name} is missing or empty in {directory_path}")
+                print(
+                    f"Warning: {file_name} is missing or empty in {directory_path}")
     return data
 
 
@@ -129,5 +130,6 @@ def load_text_files_from_directory(directory_path: str):
             if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
                 data[file_name] = load_text_file(file_path)
             else:
-                print(f"Warning: {file_name} is missing or empty in {directory_path}")
+                print(
+                    f"Warning: {file_name} is missing or empty in {directory_path}")
     return data

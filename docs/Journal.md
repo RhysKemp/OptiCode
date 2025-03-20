@@ -165,3 +165,9 @@
 - Create [file_loader.py](../utils/file_loader.py) helper module to help with loading and reading files.
 - Finish work on [dataset.py](../ai/dataset.py) - Use AST Parsing over tokenisation due to language agnosticism.
 - Start work on [train_model.py](../ai/train_model.py) - used to train the model that will make decisions on efficient vs inefficient code
+
+### Day 10
+
+- Fix [ast_parser.py](../engine/ast_parser.py) parse_ast method to decode introduced backslashes.
+- complete [train_model.py](../ai/train_model.py)
+- revert from AST parsing to direct tokenisation since it just confuses a lot

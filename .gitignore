@@ -161,3 +161,6 @@ cython_debug/
 
 # AI model datasets, link is posted in the txt file
 ai/datasets/
+
+# AI models & logs
+ai/models

@@ -1,64 +1,57 @@
 import os
 import torch
-from ai.dataset import CustomDataset
-from ai.model import Seq2SeqModel
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 from engine.ast_parser import ASTParser
 
 
-def test_model(dataset_path, model_path):
-    # Load dataset
-    dataset = CustomDataset(dataset_path)
-
-    # Define model
-    # Assuming input and output dimensions are the same
-    input_dim = output_dim = len(dataset[0][0])
-    hidden_dim = 128
-    model = Seq2SeqModel(input_dim, hidden_dim, output_dim)
-
-    # Load trained model
-    model.load_state_dict(torch.load(model_path))
+def test_model(dataset_dir, model_dir):
+    # Load the saved model and tokenizer
+    print(f"Loading model and tokenizer from {model_dir}")
+    tokeniser = T5Tokenizer.from_pretrained(model_dir)
+    model = T5ForConditionalGeneration.from_pretrained(model_dir)
     model.eval()
 
     # Initialize AST parser
     parser = ASTParser()
 
     # Test the model on a sample input
-    sample_index = 0  # Change this index to test different samples
-    inefficient_ast, efficient_ast = dataset[sample_index]
+    test_code = "x = 10\ny = 20\nz = 30\nprint(x)\nprint(z)"
+    print("Original Code:")
+    print(test_code)
 
-    # Convert AST to tensor
-    inefficient_ast_tensor = torch.tensor(
-        inefficient_ast, dtype=torch.float32).unsqueeze(0)
+    # Parse the code to AST and linearise it
+    parser.parse_ast(test_code)
+    linearised_ast = parser.linearise_ast()
+
+    print("\nLinearised AST Input:")
+    print(linearised_ast)
+
+    # Convert to model input format using linearised AST
+    inputs = tokeniser(linearised_ast, return_tensors="pt",
+                       padding=True, truncation=True)
 
     # Generate output
     with torch.no_grad():
-        output = model(inefficient_ast_tensor, inefficient_ast_tensor)
+        output_ids = model.generate(
+            inputs["input_ids"],
+            max_length=512,
+            num_beams=4,
+            early_stopping=True
+        )
 
-    # Convert output tensor to AST
-    output_ast = output.squeeze(0).numpy()
+    # Decode the output
+    generated_code = tokeniser.decode(output_ids[0], skip_special_tokens=True)
 
-    # Convert AST back to source code
-    parser.tree = output_ast
-    generated_code = parser.get_source()
+    # Parse and convert back to code if necessary
+    # If your model outputs linearised AST, you might need to convert it back to code
 
-    # Print the results
-    parser.tree = inefficient_ast
-    inefficient_code = parser.get_source()
-
-    parser.tree = efficient_ast
-    efficient_code = parser.get_source()
-
-    print("Inefficient Code:")
-    print(inefficient_code)
     print("\nGenerated Code:")
     print(generated_code)
-    print("\nEfficient Code:")
-    print(efficient_code)
 
 
 if __name__ == "__main__":
-    dataset_path = os.path.join(os.path.dirname(
-        __file__), "ai/datasets/GEC/train")
-    model_path = os.path.join(os.path.dirname(
-        __file__), "model.pth")
-    test_model(dataset_path, model_path)
+    dataset_dir = os.path.join(os.path.dirname(
+        __file__), "ai/datasets/GEC/TEST_DEV")
+    model_dir = os.path.join(os.path.dirname(
+        __file__), "ai/models/final_model")
+    test_model(dataset_dir, model_dir)

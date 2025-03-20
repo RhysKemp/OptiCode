@@ -42,7 +42,7 @@ class ASTParser:
     def __init__(self):
         self.tree = None
 
-    def parse_ast(self, source_code, MAX_CODE_SIZE=10_000):
+    def parse_ast(self, source_code, MAX_CODE_SIZE=100_000):
         """
         Parses the given source code into an Abstract Syntax Tree (AST).
 
@@ -55,15 +55,8 @@ class ASTParser:
         Raises:
             SyntaxError: If the source code contains a syntax error.
         """
-        replacements = {
-            "\\\\": "\\",
-            "\\n": "\n",
-            "\\t": "\t",
-            "\\\"": "\"",
-            "\\\'": "\'",
-            "\\'": "'",
-            '\\"': '"'
-        }
+        # Encode and decode to fix introduced backslashes
+        source_code = source_code.encode().decode('unicode_escape')
 
         if not source_code.strip():  # ensure not empty
             raise ValueError(
@@ -73,9 +66,6 @@ class ASTParser:
             raise ValueError(
                 f"Source code exceeds maximum allowed size, size: {len(source_code)}"
             )
-
-        for old, new in replacements.items():
-            source_code = source_code.replace(old, new)
 
         try:
             self.tree = ast.parse(source_code)
@@ -355,3 +345,24 @@ class ASTParser:
             node_type = type(node).__name__
             features[node_type] = features.get(node_type, 0) + 1
         return list(features.values())
+
+    def linearise_ast(self):
+        """
+        Linearises the abstract syntax tree (AST) into a sequence of node types.
+
+        This method traverses the AST in a depth-first manner and collects the types of nodes
+        in the order they are visited.
+
+        Returns:
+            list: A list of strings representing the types of nodes in the AST in linear order.
+        """
+        linearised_nodes = []
+        stack = [self.tree]
+
+        while stack:
+            node = stack.pop()
+            node_type = type(node).__name__
+            linearised_nodes.append(node_type)
+            stack.extend(reversed(list(ast.iter_child_nodes(node))))
+
+        return linearised_nodes
