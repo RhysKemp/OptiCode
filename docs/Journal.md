@@ -155,6 +155,13 @@
 
 ### Day 8
 
-- Finished implmenting [benchmark.py](../benchmarking/benchmark.py) and created [test_benchmark.py](../tests/test_benchmarking/test_benchmark.py)
+- Finished implementing [benchmark.py](../benchmarking/benchmark.py) and created [test_benchmark.py](../tests/test_benchmarking/test_benchmark.py)
 - Begin work on AI integration.
-- Start creating a [dataset](LINK TODO) class to load in the open source GEC dataset (MIT open source license)
+- Start creating a [dataset](../ai/dataset.py) class to load in the open source GEC dataset (MIT open source license)
+
+### Day 9
+
+- Refactor [ast_parser.py](../engine/ast_parser.py) constructor to not need code initially and just creates an empty tree to parse populate later.
+- Create [file_loader.py](../utils/file_loader.py) helper module to help with loading and reading files.
+- Finish work on [dataset.py](../ai/dataset.py) - Use AST Parsing over tokenisation due to language agnosticism.
+- Start work on [train_model.py](../ai/train_model.py) - used to train the model that will make decisions on efficient vs inefficient code
