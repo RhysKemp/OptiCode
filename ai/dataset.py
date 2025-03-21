@@ -2,19 +2,20 @@ import json
 import os
 import torch
 from tqdm import tqdm
-from engine.ast_parser import ASTParser
 from torch.utils.data import Dataset
 from utils.file_loader import *
 
 
-class LinearDataset(Dataset):
+class CodeDataset(Dataset):
     """
     A custom dataset class for loading and processing code datasets.
+
     Attributes:
         dataset_dir (str): The directory containing the dataset.
         parser (ASTParser): An instance of the ASTParser class.
         data (dict): A dictionary containing the loaded dataset.
         processed_data (list): A list of tuples containing processed ASTs.
+
     Methods:
         load_dataset():
             Loads the dataset from the specified directory.
@@ -36,7 +37,7 @@ class LinearDataset(Dataset):
                 tuple: A tuple containing the inefficient and accepted ASTs.
     """
 
-    def __init__(self, dataset_dir: str, tokeniser, max_length: int = 512):
+    def __init__(self, dataset_dir: str, tokeniser, max_length: int = 1024):
         """
         Initialises the Dataset object.
 
@@ -49,7 +50,6 @@ class LinearDataset(Dataset):
         self.dataset_dir = dataset_dir
         self.tokeniser = tokeniser
         self.max_length = max_length
-        self.parser = ASTParser()
         self.data = self.load_dataset()
         self.processed_data = self.process_dataset()
 
@@ -126,15 +126,31 @@ class LinearDataset(Dataset):
             efficient_code = dir["accepted"]
             inefficient_codes = dir["acc_tle_solutions"]
 
+            input_output = dir["input_output"]
+            input_data = input_output["inputs"]
+            expected_output = input_output["outputs"]
+
+            # fix escape chars
+            try:
+                efficient_code = efficient_code.encode().decode('unicode_escape')
+            except UnicodeDecodeError:
+                efficient_code = efficient_code.replace(
+                    '\\\\', '\\')  # Try a replace instead
+
             for inefficient_code in inefficient_codes.values():
                 try:
-                    self.parser.parse_ast(inefficient_code)
-                    inefficient_ast = self.parser.tree
+                    try:  # fix escape chars
+                        inefficient_code = inefficient_code.encode().decode('unicode_escape')
+                    except UnicodeDecodeError:
+                        inefficient_code = inefficient_code.replace(
+                            '\\\\', '\\')  # Try a replace instead
 
-                    self.parser.parse_ast(efficient_code)
-                    efficient_ast = self.parser.tree
+                    # verify syntax
+                    compile(inefficient_code, '<string>', 'exec')
+                    compile(efficient_code, '<string>', 'exec')
 
-                    processed.append((inefficient_ast, efficient_ast))
+                    processed.append(
+                        (inefficient_code, efficient_code, input_data, expected_output))
                 except SyntaxError as e:
                     print(f"SyntaxError: {e}")
                     print(f"Source code: {repr(inefficient_code)}")
@@ -145,25 +161,23 @@ class LinearDataset(Dataset):
         return len(self.processed_data)
 
     def __getitem__(self, index):
-        inefficient_ast, efficient_ast = self.processed_data[index]
-        parser = self.parser
+        inefficient_code, efficient_code, input_data, expected_output = self.processed_data[
+            index]
 
-        # Linearise the ASTs
-        parser.tree = inefficient_ast
-        inefficient_seq = parser.linearise_ast()
-
-        parser.tree = efficient_ast
-        efficient_seq = parser.linearise_ast()
+        # # Add a prefix to help the model understand the task
+        # input_text = f"CODE_OPTIMIZATION: {inefficient_code}"
 
         # Tokenise
         input_encodings = self.tokeniser(
-            inefficient_seq, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
+            inefficient_code, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
         target_encodings = self.tokeniser(
-            efficient_seq, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
+            efficient_code, max_length=self.max_length, truncation=True, padding="max_length", return_tensors="pt")
 
         # Remove batch dimension and create a dictionary
         return {
             "input_ids": input_encodings["input_ids"].squeeze(),
             "attention_mask": input_encodings["attention_mask"].squeeze(),
             "labels": target_encodings["input_ids"].squeeze(),
+            "input_data": input_data,
+            "expected_output": expected_output
         }

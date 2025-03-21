@@ -98,15 +98,15 @@
 
 - Phase 1:
   - [x] Step 1: Set up code parsing (AST and tokenization).
-  - [ ] Step 2: Implement basic rule-based optimisations.
-  - [ ] Step 3: Implement benchmarking tool.
+  - [x] Step 2: Implement basic rule-based optimisations.
+  - [x] Step 3: Implement benchmarking tool.
 - Phase 2:
-  - [ ] Step 4: Research existing AI models for code optimisation
-  - [ ] Step 5: Collect and prepare data.
-  - [ ] Step 6: Train and evaluate an inital model.
+  - [x] Step 4: Research existing AI models for code optimisation
+  - [x] Step 5: Collect and prepare data.
+  - [x] Step 6: Train and evaluate an inital model.
 - Phase 3:
-  - [ ] Step 7: Integrate the AI Model into the pipeline
-  - [ ] Step 8: Continuous improvements.
+  - [x] Step 7: Integrate the AI Model into the pipeline
+  - [x] Step 8: Continuous improvements.
 
 ## Journal
 
@@ -171,3 +171,4 @@
 - Fix [ast_parser.py](../engine/ast_parser.py) parse_ast method to decode introduced backslashes.
 - complete [train_model.py](../ai/train_model.py)
 - revert from AST parsing to direct tokenisation since it just confuses a lot
+- introduce CUDA integration to massively improve model training time.

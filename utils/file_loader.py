@@ -133,3 +133,28 @@ def load_text_files_from_directory(directory_path: str):
                 print(
                     f"Warning: {file_name} is missing or empty in {directory_path}")
     return data
+
+
+def load_input_output_data(dir_path: str):
+    """
+    Loads input data from a specified directory.
+
+    Args:
+        dir_path (str): The path to the directory containing the input files.
+
+    Returns:
+        tuple: A tuple containing two elements:
+            - input_data: The data corresponding to the "inputs" key in the JSON file.
+            - output_data: The data corresponding to the "outputs" key in the JSON file.
+    Raises:
+        Exception: If there is an error loading the JSON file.
+    """
+    try:
+        json_data = load_json_file(dir_path)
+    except Exception as e:
+        print(f"Error loading input data from {dir_path} -> {e}")
+        return None
+
+    input_data = json_data["inputs"]
+    output_data = json_data["outputs"]
+    return input_data, output_data

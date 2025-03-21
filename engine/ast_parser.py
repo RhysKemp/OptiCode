@@ -2,40 +2,67 @@ import ast
 import builtins
 import astpretty
 
+# Largely an artifact from using AST parsing in model training
+# Though would continue to have future with rule-based optimisations and heuristics as fallback options if a model is missing for specific languages.
+
 
 class ASTParser:
     """
     A class used to parse the Abstract Syntax Tree (AST) from source code.
 
-    The class uses various methods to parse source code into an AST,
-    visualising the AST structure, walking through nodes, applying optimisations
-    and converting nodes back into source code.
+    The class has various methods used to manipulate ASTs.
 
     Attributes
     ----------
-    source_code : str
-        The source code to be parsed.
     tree : ast.AST
         The parsed AST of the source code.
 
     Methods
     -------
-    __init__(self, source_code: str):
-        Initialises the ASTParser with the given source code and parses the AST.
+    parse_ast(source_code, MAX_CODE_SIZE=100_000)
+        Parses the given source code into an AST, with size validation.
 
-    parse_ast(source_code: str) -> ast.AST:
-        Parses the given source code into an Abstract Syntax Tree (AST).
-        Raises a SyntaxError if the source code is invalid.
+    visualise_ast()
+        Prints the AST in a readable format.
 
-    visualise_ast(tree: ast.AST) -> None:
-        Visualises the given AST using the `astpretty` library.
+    get_node_source(node)
+        Converts an AST node back to source code.
 
-    get_node_source(node: ast.AST) -> str:
-        Converts an AST node back to the corresponding source code.
+    get_source()
+        Converts the entire AST back to source code.
 
-    remove_node(self, node) -> None:
-        Removes a specific node from the AST.
+    remove_node(node)
+        Removes a specified node from the AST.
 
+    find_assignments()
+        Finds all direct variable assignments in the AST.
+
+    find_used_variables()
+        Finds all variables that are used in the AST.
+
+    fix_locations()
+        Fixes the locations of nodes in the AST.
+
+    _find_parent(node)
+        Finds the parent node of a given AST node.
+
+    create_node(node_type, **kwargs)
+        Creates a new AST node of a specified type with given attributes.
+
+    find_constant_expressions()
+        Identifies constant expressions and computes their values.
+
+    replace_node(old_node, new_node)
+        Replaces an old node with a new node in the AST.
+
+    find_unreachable_code()
+        Identifies unreachable code blocks in the AST.
+
+    extract_features()
+        Extracts feature counts based on the occurrences of node types.
+
+    linearise_ast()
+        Converts the AST into a linear sequence of node types.
 
     """
 

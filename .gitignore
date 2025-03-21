@@ -162,5 +162,20 @@ cython_debug/
 # AI model datasets, link is posted in the txt file
 ai/datasets/
 
-# AI models & logs
-ai/models
+# AI models
+ai/models/
+
+# AI Model files
+ai/models/final_model/
+ai/models/checkpoint-591/
+ai/models/**/merges.txt
+
+# Model checkpoints
+*.pt
+*.pth
+*.ckpt
+*.bin
+
+# Large generated files
+*.trace
+*.log
